@@ -1,12 +1,15 @@
 const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const ejs = require('ejs');
 const booksRouter = require('./routes/books');
+const { getHospitalsData, saveMockHospitals } = require("./routes/hospital")
+const { saveMockSlots } = require("./routes/slot")
 const { login, logout } = require('./auth');
-const app = express();
-const Patient = require('./models/Patient')
+const Hospital = require('./models/Hospital');
+const Slot = require('./models/Slot');
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -14,16 +17,13 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
-mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.net/?retryWrites=true&w=majority', function(err){
-  if(err){
-    console.log(err);
-  }else{
-    console.log("Successfully connected");
-  }
-});
 
-app.get("/", function (req, res) {
-  res.render('home');
+
+
+app.get("/", async (req, res) => {
+  res.render('home', {
+    hospitals: await getHospitalsData()
+  });
 });
 
 app.get("/dashboard", function (req, res) {
@@ -34,6 +34,20 @@ app.get("/dashboard", function (req, res) {
 app.get("/logout", logout)
 app.post("/login", login)
 app.use("/books", booksRouter)
-app.listen(3000, function (req, res) {
-  console.log("Server running");
+
+
+mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.net/test?retryWrites=true&w=majority', async function (err) {
+  await Hospital.init()
+  await Slot.init()
+  if (err) {
+    console.log(err);
+  } else {
+    console.log("Successfully connected");
+    app.listen(3000, async function (req, res) {
+      // await saveMockHospitals()
+      // await saveMockSlots()
+      console.log("Server running");
+    });
+  }
 });
+
