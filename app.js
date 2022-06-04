@@ -6,6 +6,7 @@ const ejs = require('ejs');
 const booksRouter = require('./routes/books');
 const { login, logout } = require('./auth');
 const app = express();
+const Patient = require('./models/Patient')
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,9 +21,6 @@ mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.
     console.log("Successfully connected");
   }
 });
-
-
-
 
 app.get("/", function (req, res) {
   res.render('home');
