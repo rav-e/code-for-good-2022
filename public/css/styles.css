@@ -1,9 +1,9 @@
 
-  .one{
-      color: black;
-  }
-  .two{
+.one{
     color: black;
+}
+.two{
+  color: black;
 }
 .three{
   color: black;
@@ -37,6 +37,7 @@ color: black;
 }
 .border{
   border-right: 15px;
+  text-align: left;
 }
 
 .btn-spacing{
@@ -49,4 +50,8 @@ color: black;
 
 .navbar-brand{
   font-weight: bold;
+}
+
+.foot-h1{
+  text-align: center;
 }
