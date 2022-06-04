@@ -7,7 +7,7 @@
 </div>
 <script>
   window.addEventListener("DOMContentLoaded", async () => {
-    const { freeSlotsByType, bookedSlotsByType, serviceTypes } = (
+    const { freeSlotsByType, bookedSlotsByType, serviceTypes, bookings } = (
       await cfgAxios.get("/dashboard/hospital-stats")
     ).data;
 
@@ -50,6 +50,10 @@
       barConfig
     );
 
+    const pieTextLabels = [];
+    const pieDataPoints = [];
+    // bookedSlotsByType
+    console.log("bookings", bookings);
     const pieData = {
       labels: ["Red", "Blue", "Yellow"],
       datasets: [

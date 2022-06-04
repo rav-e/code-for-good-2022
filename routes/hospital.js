@@ -32,14 +32,14 @@ const saveMockHospitals = async () => {
 
 const getHospitalData = async (hospitalId) => {
     const slots = await Slot.find({})
-    const bookings = await Booking.find({})
+    const bookings = await Booking.find({}).populate("patient")
     const hospital = await Hospital.findOne({ id: hospitalId }).select("-password")
     const curHospitalSlots = slots.filter((slot) => slot.hospital.equals(hospital.id))
-
+    const curHospitalBookings = []
     const freeSlotsByType = {
 
     }
-
+    console.log("bookings debug", bookings)
     const bookedSlotsByType = {
     }
 
@@ -57,6 +57,7 @@ const getHospitalData = async (hospitalId) => {
         }
         else {
             bookedSlotsByType[slot.slotType].push(slot)
+            curHospitalBookings.push(relevantBooking)
         }
     })
 
@@ -64,6 +65,7 @@ const getHospitalData = async (hospitalId) => {
         ...hospital.toJSON(),
         bookedSlotsByType,
         freeSlotsByType,
+        bookings: curHospitalBookings
     }
 }
 
@@ -72,7 +74,7 @@ const getAllHospitalsData = async () => {
     const resp = await Promise.all(hospitals.map((hospital) => {
         return getHospitalData(hospital.id)
     }))
-    console.log("hospitals data", resp)
+    // console.log("hospitals data", resp)
     return resp
 }
 
