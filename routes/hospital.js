@@ -30,7 +30,7 @@ const saveMockHospitals = async () => {
 }
 
 const getAllHospitalsData = async () => {
-    const hospitals = await Hospital.find({})
+    const hospitals = await Hospital.find({}).select("-password")
     const slots = await Slot.find({})
     const bookings = await Booking.find({})
 
@@ -45,14 +45,23 @@ const getAllHospitalsData = async () => {
 
         }
 
+        const bookedSlotsByType = {
+        }
+
         curHospitalSlots.forEach((slot) => {
             if (!freeSlotsByType[slot.slotType]) {
                 freeSlotsByType[slot.slotType] = []
+            }
+            if (!bookedSlotsByType[slot.slotType]) {
+                bookedSlotsByType[slot.slotType] = []
             }
 
             const relevantBooking = bookings.find((booking) => booking.slot.equals(slot.id))
             if (!relevantBooking) {
                 freeSlotsByType[slot.slotType].push(slot)
+            }
+            else {
+                bookedSlotsByType[slot.slotType].push(slot)
             }
         })
 
