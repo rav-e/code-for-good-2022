@@ -1,0 +1,22 @@
+<%- include("header"); -%>
+<form class="mt-5" id="login-form">
+  <input placeholder="username" id="username" required />
+  <br />
+  <input placeholder="password" id="password" required />
+  <br />
+  <button class="btn btn-primary" type="submit">Login</button>
+</form>
+<script defer>
+  document.querySelector("#login-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const username = e.target["username"].value;
+    const password = e.target["password"].value;
+
+    // console.log(axios);
+    window.cfgAxios.post("/login", { username, password }).then((res) => {
+      console.log(res);
+      //   window.location.href = "/";
+    });
+  });
+</script>
+<%- include("footer"); -%>
