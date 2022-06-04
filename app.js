@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const ejs = require('ejs');
 const booksRouter = require('./routes/books');
-const { getHospitalsData, saveMockHospitals } = require("./routes/hospital")
+const { getAllHospitalsData, saveMockHospitals } = require("./routes/hospital")
 const { saveMockSlots } = require("./routes/slot")
 const { login, logout } = require('./auth');
 const Hospital = require('./models/Hospital');
@@ -22,7 +22,7 @@ app.set('view engine', 'ejs');
 
 app.get("/", async (req, res) => {
   res.render('home', {
-    hospitals: await getHospitalsData()
+    hospitals: await getAllHospitalsData()
   });
 });
 
