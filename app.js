@@ -47,8 +47,8 @@ mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.
     app.listen(3000, async function (req, res) {
       // await saveMockHospitals()
       // await saveMockSlots()
-      await saveMockPatient()
-      await saveMockBooking()
+      // await saveMockPatient()
+      // await saveMockBooking()
       console.log("Server running");
     });
   }
