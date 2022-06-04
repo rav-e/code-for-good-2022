@@ -32,7 +32,7 @@ const saveMockHospitals = async () => {
 
 const getHospitalData = async (hospitalId) => {
     const slots = await Slot.find({})
-    const bookings = await Booking.find({}).populate("patient")
+    const bookings = await Booking.find({}).populate("patient").populate("slot")
     const hospital = await Hospital.findOne({ id: hospitalId }).select("-password")
     const curHospitalSlots = slots.filter((slot) => slot.hospital.equals(hospital.id))
     const curHospitalBookings = []

@@ -1,8 +1,22 @@
-<div class="container row">
-  <div class="col-6">bookings go here</div>
-  <div class="col-6">
-    <canvas id="services-bar-chart" style="height: 370px; width: 100%"></canvas>
-    <canvas id="ailments-pie-chart" style="height: 370px; width: 100%"></canvas>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-6">
+      <h2>Booked Appointments (Recent to Older)</h2>
+      <div
+        id="booked-appointments"
+        style="max-height: 50vh; overflow-y: auto"
+      ></div>
+    </div>
+    <div class="col-6">
+      <canvas
+        id="services-bar-chart"
+        style="height: 370px; width: 100%"
+      ></canvas>
+      <canvas
+        id="ailments-pie-chart"
+        style="height: 370px; width: 100%"
+      ></canvas>
+    </div>
   </div>
 </div>
 <script>
@@ -11,7 +25,6 @@
       await cfgAxios.get("/dashboard/hospital-stats")
     ).data;
 
-    console.log("old dev", freeSlotsByType, bookedSlotsByType, serviceTypes);
     const freeAndVacantSlotsData = [];
     const freeAndVacantSlotsText = [];
 
@@ -26,7 +39,6 @@
       freeAndVacantSlotsText.push(`Booked ${serviceType.name}`);
     });
 
-    console.log("new dev", freeAndVacantSlotsData, freeAndVacantSlotsText);
     const barData = {
       labels: freeAndVacantSlotsText,
       datasets: [
@@ -50,21 +62,43 @@
       barConfig
     );
 
-    const pieTextLabels = [];
+    const bookingsMap = {};
+
     const pieDataPoints = [];
-    // bookedSlotsByType
-    console.log("bookings", bookings);
+    bookings.forEach((booking) => {
+      if (bookingsMap[booking.medicalCondition] === undefined) {
+        bookingsMap[booking.medicalCondition] = 0;
+      }
+      bookingsMap[booking.medicalCondition]++;
+    });
+
+    const pieTextLabels = Object.keys(bookingsMap);
+    let pieSortContainer = pieTextLabels.map((lbl) => {
+      return {
+        label: lbl,
+        value: bookingsMap[lbl],
+      };
+    });
+
+    pieSortContainer.sort((a, b) => {
+      return b.value - a.value;
+    });
+    // truncates array length to 5
+    pieSortContainer = pieSortContainer.slice(0, 5);
+
     const pieData = {
-      labels: ["Red", "Blue", "Yellow"],
+      labels: pieSortContainer.map((elem) => elem.label),
       datasets: [
         {
-          label: "Top 5 Ailments by Frequency",
-          data: [300, 50, 100],
+          label: "Top Ailments by Frequency",
+          data: pieSortContainer.map((elem) => elem.value),
           backgroundColor: [
             "rgb(255, 99, 132)",
             "rgb(54, 162, 235)",
             "rgb(255, 205, 86)",
-          ],
+            "rgb(3, 91, 150)",
+            "rgb(101, 195, 186)",
+          ].slice(0, pieSortContainer.length),
           hoverOffset: 4,
         },
       ],
@@ -80,6 +114,52 @@
       document.getElementById("ailments-pie-chart"),
       pieConfig
     );
+
+    const getAppointmentCard = (appointmentData) => {
+      const date = new Date(appointmentData.slot.timestamp);
+      return `
+        <div
+        class="p-4 border border-warning rounded mt-3"
+        style="
+          background-image: url('/images/abstract/booking-card-bg.png');
+          background-position: right;
+          background-repeat: no-repeat;
+        "
+        >
+          <div class="d-flex justify-content-between">
+            <div>${appointmentData.patient.name}</div>
+            <b class="">${appointmentData.slot.slotType}</b>
+          </div>
+          <div class="d-flex justify-content-between">
+            <b>ID #${appointmentData.patient.patientID}</b>
+            <div class="">${
+              date.toLocaleDateString() + ", " + date.toLocaleTimeString()
+            }</div>
+          </div>
+          <div class="d-flex justify-content-between mt-3">
+            <b>Age 56 yrs, Male ♂️</b>
+            <a href="https://www.google.com" target="blank">Print Profile</a>
+          </div>
+        </div>
+      `;
+    };
+
+    const appointmentCards = bookings.sort((b1, b2) => {
+      const t1 = new Date(b1.slot.timestamp);
+      const t2 = new Date(b2.slot.timestamp);
+
+      return t2.getTime() - t1.getTime();
+    });
+
+    const cardsHtml = appointmentCards
+      .map((booking) => {
+        return getAppointmentCard(booking);
+      })
+      .join("");
+
+    document
+      .querySelector("#booked-appointments")
+      .insertAdjacentHTML("beforeend", cardsHtml);
   });
 </script>
 <%- include("footer"); -%>

@@ -1,15 +1,14 @@
 <%- include("header"); -%>
 <div class="container">
-  <div class="row">
-    <div class="col-4 container row justify-content-around" id="services"></div>
-    <div id="gantt" class="col-8"></div>
-  </div>
+  <h1 class="mt-3">Slot Allocation Status</h1>
+  <div class="container row justify-content-around mt-3" id="services"></div>
+  <div id="gantt" class=""></div>
 </div>
 <script>
   const getCardHTML = (cardData) => {
     return `
-        <div class="card col-5 mt-2" style="cursor:pointer;">
-            <div class="card-body">
+        <div class="card col-2 mt-2" style="cursor:pointer;">
+            <div class="card-body text-center">
             <p class="card-text">
                 <img src="${cardData.image}" style="width: 100%" />
             </p>
