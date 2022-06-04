@@ -14,3 +14,4 @@ const slotSchema = new mongoose.Schema({
 
 
 module.exports = mongoose.models.Slot || mongoose.model("Slot", slotSchema)
+exports.slotTypesEnum = slotTypesEnum;

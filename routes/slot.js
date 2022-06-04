@@ -2,6 +2,8 @@
 const Hospital = require("../models/Hospital")
 const Slot = require("../models/Slot")
 const slotMockData = require("../slotMockData")
+
+
 const saveMockSlots = async () => {
   const hospitals = await Hospital.find({})
   await Slot.deleteMany({})
