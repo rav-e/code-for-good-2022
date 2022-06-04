@@ -5,14 +5,14 @@ const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const ejs = require('ejs');
 const booksRouter = require('./routes/books');
-const { getAllHospitalsData, saveMockHospitals } = require("./routes/hospital");
-const { saveMockSlots } = require("./routes/slot");
-const { saveMockPatient } = require("./routes/patients");
+const { getAllHospitalsData, saveMockHospitals } = require("./routes/hospital")
+const { saveMockSlots } = require("./routes/slot")
 const { login, logout } = require('./auth');
 const Hospital = require('./models/Hospital');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking')
 const { saveMockBooking } = require("./routes/booking");
+const { saveMockPatient } = require("./routes/patients");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
