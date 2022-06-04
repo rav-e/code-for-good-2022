@@ -5,12 +5,14 @@ const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const ejs = require('ejs');
 const booksRouter = require('./routes/books');
-const { getHospitalsData, saveMockHospitals } = require("./routes/hospital")
-const { saveMockSlots } = require("./routes/slot")
+const { getAllHospitalsData, saveMockHospitals } = require("./routes/hospital");
+const { saveMockSlots } = require("./routes/slot");
+const { saveMockPatient } = require("./routes/patients");
 const { login, logout } = require('./auth');
 const Hospital = require('./models/Hospital');
 const Slot = require('./models/Slot');
-
+const Booking = require('./models/Booking')
+const { saveMockBooking } = require("./routes/booking");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -22,7 +24,7 @@ app.set('view engine', 'ejs');
 
 app.get("/", async (req, res) => {
   res.render('home', {
-    hospitals: await getHospitalsData()
+    hospitals: await getAllHospitalsData()
   });
 });
 
@@ -46,6 +48,8 @@ mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.
     app.listen(3000, async function (req, res) {
       // await saveMockHospitals()
       // await saveMockSlots()
+      await saveMockPatient()
+      await saveMockBooking()
       console.log("Server running");
     });
   }
