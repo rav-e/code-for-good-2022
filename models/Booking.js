@@ -1,12 +1,13 @@
 
-const monoogse = require("mongoose");
+const mongoose = require("mongoose");
+
 const bookingSchema = new mongoose.Schema({
   medicalCondition: String,
-    symptoms: String,
-    patient: { type: 'ObjectId', ref: 'Patient' },
-    slot: {type :"ObjectId", ref:"Slot"}
+  symptoms: String,
+  patient: { type: 'ObjectId', ref: 'Patient' },
+  slot: { type: "ObjectId", ref: "Slot" }
 });
 
-const Booking = mongoose.model(bookingSchema)
+const Booking = mongoose.model("Booking", bookingSchema)
 
 module.exports = Booking
