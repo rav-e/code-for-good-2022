@@ -1,0 +1,212 @@
+<div class="container">
+  <form id="form-accordions"></form>
+</div>
+<script>
+  const getAndSetCoveredStatus = (disease, covered) => {
+    if (disease && disease != "Pick Disease") {
+      window.medicalCondition = disease;
+      return `
+        <div class="alert alert-${covered ? "success" : "danger"}" role="alert">
+            <b>${disease}</b> is <b>${
+        covered ? "covered" : "not covered"
+      }</b> under state insurance (Aarogyasri)
+        </div>
+        `;
+    } else {
+      return "";
+    }
+  };
+  const getPatientTable = (patient) => {
+    return `
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Date of Birth</th>
+                  <th scope="col">Weight</th>
+                  <th scope="col">Height</th>
+                  <th scope="col">Blood Group</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                  <td>${patient.name}</td>
+                  <td>${new Date(patient.dob).toDateString()}</td>
+                  <td>${patient.weight} kgs</td>
+                  <td>${patient.height} cms</td>
+                  <td>${patient.blood_group}</td>
+                  </tr>
+              </tbody>
+          </table>
+      `;
+  };
+
+  window.requestData = {
+    patientId: "",
+    symptoms: "",
+    medicalCondition: "",
+    slot: "",
+  };
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    const { aarogyasri, notIncluded } = (
+      await cfgAxios.get("/patient/diseases-symptoms")
+    ).data;
+    window.aarogyasri = aarogyasri;
+    const combinedDiseases = Array.from(
+      new Set([...aarogyasri, ...notIncluded])
+    );
+    combinedDiseases.sort();
+
+    const fetchPatient = async () => {
+      try {
+        const patientId = document.querySelector("#patient-id")?.value || "";
+        const patient = (await cfgAxios.get(`/patient/${patientId}`)).data;
+        const table = getPatientTable(patient);
+        const tableDiv = document.querySelector("#patient-table");
+        tableDiv.innerHTML = table;
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const checkDisease = () => {
+      const disease = document.querySelector("#disease-name")?.value || "";
+      document.querySelector("#cover-info").innerHTML = getAndSetCoveredStatus(
+        disease,
+        window.aarogyasri.includes(disease)
+      );
+    };
+
+    const accordionSteps = [
+      {
+        title: "Patient Identification",
+        icon: "/images/main-form/patient.png",
+        content: `
+              <div class="form-group">
+                  <label for="patient-id">Patient ID</label>
+                  <input class="form-control" type="text" id="patient-id" placeholder="Enter Patient ID" required style="flex:1;" onchange='(${fetchPatient.toString()})()'>
+                  <div id="patient-table"></div>
+                  </div>
+              `,
+        proceedLogic: () => {},
+      },
+      {
+        title: "Ailment Prediagnosed?",
+        icon: "/images/main-form/prediagnosis.png",
+        content: `
+                <div class="form-group">
+                    <label for="patient-id">Any Prediagnosed Ailment?</label>
+                    <div class="d-flex align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="disease-known" id="disease-yes" value="yes" checked>
+                            <label class="form-check-label" for="disease-no">
+                                Yes
+                            </label>
+                        </div>
+                        <div class="form-check ml-5">
+                            <input class="form-check-input" type="radio" name="disease-known" id="disease-no" value="no">
+                            <label class="form-check-label" for="disease-no">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="ailment-symptoms-container">
+                    <div class="form-group">
+                        <label for="disease-name">Disease Name</label>
+                        <select class="form-control" type="text" id="disease-name" placeholder="Disease name" required style="flex:1;" onchange='(${checkDisease.toString()})()'>
+                            <option selected="true" disabled="disabled">Pick Disease</option>
+                            ${combinedDiseases
+                              .map(
+                                (disease) =>
+                                  `<option value="${disease}">${disease}</option>`
+                              )
+                              .join("")}
+                        </select>
+                    </div>
+                    <div id="cover-info"></div>
+                </div>
+        `,
+      },
+      {
+        title: "Service Selection",
+        icon: "/images/main-form/service.png",
+      },
+      {
+        title: "Healthcare Centre Selection",
+        icon: "/images/main-form/hospital.png",
+      },
+    ];
+
+    /*
+
+      dob
+      2022-06-04T15:37:55.619+00:00
+      blood_group
+      "B+"
+      weight
+      65
+      height
+      165
+      name
+      "Akash"
+      */
+
+    const getAccordion = (data) => {
+      return `
+          <div class="card my-4">
+              <div class="card-header bg-cream cursor-pointer"  id="${
+                "heading-" + data.title
+              }">
+              <h5 class="mb-0">
+                  <div
+                  class="d-flex align-items-center"
+                  data-toggle="collapse"
+                  data-target="#${"collapse-" + data.title}"
+                  aria-expanded="true"
+                  aria-controls="${"collapse-" + data.title}"
+
+                  >
+                  <div>
+                      <img src="${data.icon}" style="height:60px;width:60px;"/>
+                  </div>
+                  <div class="ml-3">
+                  ${data.title}
+                  </div>
+              </div>
+              </h5>
+              </div>
+
+              <div
+              id="${"collapse-" + data.title}"
+              class="collapse show"
+              aria-labelledby="${"heading-" + data.title}"
+              data-parent="#accordion"
+              >
+              <div class="card-body bg-sand">
+                  ${data.content || ""}
+                  <div class="d-flex justify-content-end">
+                      <div class="text-danger">
+                          ${data.error ? data.error + "*" : ""}
+                      </div>
+                      <button class="btn btn-warning btn-large">
+                          Proceed
+                      </button>
+                  </div>
+              </div>
+              </div>
+          </div>`;
+    };
+
+    const accordionsHTML = accordionSteps
+      .map((step) => {
+        return getAccordion(step);
+      })
+      .join("");
+
+    document
+      .querySelector("#form-accordions")
+      .insertAdjacentHTML("afterbegin", accordionsHTML);
+  });
+</script>

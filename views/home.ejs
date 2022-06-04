@@ -1,6 +1,6 @@
 <%- include("header"); -%>
 <style>
-  .head{
+  /* .head{
       position: relative;
       left: 200px;
       right:50px;
@@ -58,51 +58,60 @@
   }
   .image2.image3.image4{
     background-color: transparent;
-  }
-
+  } */
 </style>
-
-
 
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm ml-auto">
-      <img style="width:80%; height:80%;" class=" home-img" src="/images/image.jpg">
+      <img
+        style="width: 80%; height: 80%"
+        class="home-img"
+        src="/images/image.jpg"
+      />
     </div>
     <div class="col-sm home-mid-text">
-      <h1 style="color:lightseagreen;" class="text-center h1center">Collab<span style="color: black;">Health</span></h1>
+      <h1 style="color: lightseagreen" class="text-center h1center">
+        Collab<span style="color: black">Health</span>
+      </h1>
       <p class="text-center h1center">Your Health Care Service Aggregator</p>
     </div>
     <div class="col-sm home-btn-end">
       <h3 class="text-center h1center">Get started with colab health</h3>
       <button class="btn btn-info pad">Hospital</button>
-        &nbsp
-      <button class="btn btn-info ">User</button>
+      &nbsp
+      <button class="btn btn-info">User</button>
     </div>
   </div>
 </div>
-  
+
 <div class="vision">
-  <div> <h1 class="service"> Services</h1></div>
-<div class="container" >
-  <div class="row">
-    <div class="col-sm">
-      <img src="/images/image2.jpg" class="image2" >
-      <h3>5 Crucial medical services </h3>
-       <p>Get crucial services like MRI scan,X-rays,ECG & more</p>
+  <div><h1 class="service">Services</h1></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm">
+        <img src="/images/image2.jpg" class="image2" />
+        <h3>5 Crucial medical services</h3>
+        <p>Get crucial services like MRI scan,X-rays,ECG & more</p>
+      </div>
+      <div class="col-sm">
+        <img src="/images/image3.jpg" class="image3" />
+        <h3>Intelligent System</h3>
+        <p>
+          Intelligently catagorises which diseases is covered under government
+          scheme
+        </p>
+      </div>
+      <div class="col-sm">
+        <img src="/images/image4.jpg" class="image4" />
+        <h3>Stats at your fingertips</h3>
+        <p>
+          Hospitals are provided fluid user interfaces to make sure they provide
+          the best in class services
+        </p>
+      </div>
     </div>
-    <div class="col-sm">
-      <img src="/images/image3.jpg" class="image3" >
-      <h3>Intelligent System</h3>
-      <p>Intelligently catagorises which diseases is covered under government scheme</p>
-    </div>
-    <div class="col-sm">
-      <img src="/images/image4.jpg" class="image4" >
-      <h3>Stats at your fingertips</h3>
-      <p>Hospitals are provided fluid user interfaces to make sure they provide the best in class services </p>
-    </div>
-  </div>
   </div>
 </div>
-  <%- include("home-lower") -%>
-  <%- include("footer") -%>
+<%- include("main-form") -%> <%- include("home-lower") -%> <%- include("footer")
+-%>

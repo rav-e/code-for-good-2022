@@ -11,7 +11,7 @@ const { login, logout } = require('./auth');
 const Hospital = require('./models/Hospital');
 const Slot = require('./models/Slot');
 const dashboardRouter = require("./routes/dashboard")
-
+const patientRouter = require("./routes/patients")
 const { saveMockBooking } = require("./routes/booking");
 const { saveMockPatient } = require("./routes/patients");
 app.use(cookieParser());
@@ -35,7 +35,7 @@ app.use("/dashboard", dashboardRouter);
 app.get("/logout", logout)
 app.post("/login", login)
 app.use("/books", booksRouter)
-
+app.use("/patient", patientRouter)
 
 mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.net/test?retryWrites=true&w=majority', async function (err) {
   await Hospital.init()

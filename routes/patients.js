@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Patient = require("../models/Patient");
+const aarogyasri = require("./disease-lists/aarogyasri")
+const notIncluded = require("./disease-lists/notIncluded")
 
 const saveMockPatient = async () => {
     //await Patient.deleteMany({})
@@ -16,8 +18,22 @@ const saveMockPatient = async () => {
 }
 
 
-router.post("/", async (req, res) => { 
-    return await Patient.find({});
+router.get("/diseases-symptoms", async (req, res) => {
+    return res.json({
+        aarogyasri: Array.from(aarogyasri),
+        notIncluded: Array.from(notIncluded)
+    })
+})
+router.get("/:patientId", async (req, res) => {
+    const patient = await Patient.findOne({ parentId: req.params.patientId });
+    console.log("patient", patient);
+    if (patient) {
+        return res.json(patient.toJSON());
+    }
+    else {
+        return res.status(404).send("Patient not found");
+    }
 })
 
 exports.saveMockPatient = saveMockPatient
+module.exports = router
