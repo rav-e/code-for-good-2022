@@ -13,6 +13,16 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
+mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.net/?retryWrites=true&w=majority', function(err){
+  if(err){
+    console.log(err);
+  }else{
+    console.log("Successfully connected");
+  }
+});
+
+
+
 
 app.get("/", function (req, res) {
   res.render('home');
