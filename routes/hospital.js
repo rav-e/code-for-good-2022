@@ -1,4 +1,5 @@
 // const express = require("express");
+const Booking = require("../models/Booking")
 const Hospital = require("../models/Hospital")
 const Slot = require("../models/Slot")
 
@@ -19,7 +20,7 @@ const sampleHospitals = [
 ]
 
 const saveMockHospitals = async () => {
-    // await Hospital.deleteMany({})
+    await Hospital.deleteMany({})
     await Promise.all(sampleHospitals.map(async (hospital) => {
         console.log("hosp", hospital)
         const hospitalDoc = new Hospital(hospital)
@@ -28,20 +29,39 @@ const saveMockHospitals = async () => {
     }))
 }
 
-const getHospitalsData = async () => {
+const getAllHospitalsData = async () => {
     const hospitals = await Hospital.find({})
     const slots = await Slot.find({})
+    const bookings = await Booking.find({})
 
     let resp = []
 
     hospitals.forEach((hospital) => {
 
-        const curHospitalSlots = slots.filter((slot) => slot.hospital == hospital.id)
+        // console.log("slots", slots)
+        const curHospitalSlots = slots.filter((slot) => slot.hospital.equals(hospital.id))
+
+        const freeSlotsByType = {
+
+        }
+
+        curHospitalSlots.forEach((slot) => {
+            if (!freeSlotsByType[slot.slotType]) {
+                freeSlotsByType[slot.slotType] = []
+            }
+
+            const relevantBooking = bookings.find((booking) => booking.slot.equals(slot.id))
+            if (!relevantBooking) {
+                freeSlotsByType[slot.slotType].push(slot)
+            }
+        })
 
         resp.push({
-            ...hospital,
-            slots: curHospitalSlots
+            ...hospital.toJSON(),
+            slots: curHospitalSlots.map((slot) => slot.toJSON()),
+            freeSlotsByType
         })
+
     })
     console.log("hospitals data", resp)
     return resp
@@ -50,5 +70,5 @@ const getHospitalsData = async () => {
 //     return await Hospital.find({});
 // })
 
-exports.getHospitalsData = getHospitalsData
+exports.getAllHospitalsData = getAllHospitalsData
 exports.saveMockHospitals = saveMockHospitals
