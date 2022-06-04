@@ -1,6 +1,6 @@
 
-const Hospital = require("../models/hospital")
-const Slot = require("../models/slot")
+const Hospital = require("../models/Hospital")
+const Slot = require("../models/Slot")
 const slotMockData = require("../slotMockData")
 const saveMockSlots = async () => {
   const hospitals = await Hospital.find({})

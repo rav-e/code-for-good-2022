@@ -10,9 +10,10 @@ const { saveMockSlots } = require("./routes/slot")
 const { login, logout } = require('./auth');
 const Hospital = require('./models/Hospital');
 const Slot = require('./models/Slot');
-const serviceTypes = require('./constants/serviceTypes');
 const dashboardRouter = require("./routes/dashboard")
 
+const { saveMockBooking } = require("./routes/booking");
+const { saveMockPatient } = require("./routes/patients");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -46,6 +47,8 @@ mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.
     app.listen(3000, async function (req, res) {
       // await saveMockHospitals()
       // await saveMockSlots()
+      await saveMockPatient()
+      await saveMockBooking()
       console.log("Server running");
     });
   }
