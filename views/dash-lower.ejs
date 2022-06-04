@@ -1,30 +1,84 @@
-<canvas id="chartContainer" style="height: 370px; width: 100%"></canvas>
-
+<div class="container row">
+  <div class="col-6">bookings go here</div>
+  <div class="col-6">
+    <canvas id="services-bar-chart" style="height: 370px; width: 100%"></canvas>
+    <canvas id="ailments-pie-chart" style="height: 370px; width: 100%"></canvas>
+  </div>
+</div>
 <script>
-  window.addEventListener("DOMContentLoaded", () => {
-    const labels = ["January", "February", "March", "April", "May", "June"];
+  window.addEventListener("DOMContentLoaded", async () => {
+    const { freeSlotsByType, bookedSlotsByType, serviceTypes, bookings } = (
+      await cfgAxios.get("/dashboard/hospital-stats")
+    ).data;
 
-    const data = {
-      labels: labels,
+    console.log("old dev", freeSlotsByType, bookedSlotsByType, serviceTypes);
+    const freeAndVacantSlotsData = [];
+    const freeAndVacantSlotsText = [];
+
+    serviceTypes.forEach((serviceType) => {
+      freeAndVacantSlotsData.push(
+        freeSlotsByType[serviceType.name]?.length || 0
+      );
+      freeAndVacantSlotsData.push(
+        bookedSlotsByType[serviceType.name]?.length || 0
+      );
+      freeAndVacantSlotsText.push(`Free ${serviceType.name}`);
+      freeAndVacantSlotsText.push(`Booked ${serviceType.name}`);
+    });
+
+    console.log("new dev", freeAndVacantSlotsData, freeAndVacantSlotsText);
+    const barData = {
+      labels: freeAndVacantSlotsText,
       datasets: [
         {
-          label: "My First dataset",
+          label: "Slot Availability",
           backgroundColor: "rgb(255, 99, 132)",
           borderColor: "rgb(255, 99, 132)",
-          data: [0, 10, 5, 2, 20, 30, 45],
+          data: freeAndVacantSlotsData,
         },
       ],
     };
 
-    const config = {
+    const barConfig = {
       type: "bar",
-      data: data,
+      data: barData,
       options: {},
     };
 
-    const myChart = new Chart(
-      document.getElementById("chartContainer"),
-      config
+    const barChart = new Chart(
+      document.getElementById("services-bar-chart"),
+      barConfig
+    );
+
+    const pieTextLabels = [];
+    const pieDataPoints = [];
+    // bookedSlotsByType
+    console.log("bookings", bookings);
+    const pieData = {
+      labels: ["Red", "Blue", "Yellow"],
+      datasets: [
+        {
+          label: "Top 5 Ailments by Frequency",
+          data: [300, 50, 100],
+          backgroundColor: [
+            "rgb(255, 99, 132)",
+            "rgb(54, 162, 235)",
+            "rgb(255, 205, 86)",
+          ],
+          hoverOffset: 4,
+        },
+      ],
+    };
+
+    const pieConfig = {
+      type: "pie",
+      data: pieData,
+      options: {},
+    };
+
+    const pieChart = new Chart(
+      document.getElementById("ailments-pie-chart"),
+      pieConfig
     );
   });
 </script>

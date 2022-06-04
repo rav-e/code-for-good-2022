@@ -29,55 +29,59 @@ const saveMockHospitals = async () => {
     }))
 }
 
-const getAllHospitalsData = async () => {
-    const hospitals = await Hospital.find({}).select("-password")
+
+const getHospitalData = async (hospitalId) => {
     const slots = await Slot.find({})
-    const bookings = await Booking.find({})
+    const bookings = await Booking.find({}).populate("patient")
+    const hospital = await Hospital.findOne({ id: hospitalId }).select("-password")
+    const curHospitalSlots = slots.filter((slot) => slot.hospital.equals(hospital.id))
+    const curHospitalBookings = []
+    const freeSlotsByType = {
 
-    let resp = []
+    }
+    console.log("bookings debug", bookings)
+    const bookedSlotsByType = {
+    }
 
-    hospitals.forEach((hospital) => {
-
-        // console.log("slots", slots)
-        const curHospitalSlots = slots.filter((slot) => slot.hospital.equals(hospital.id))
-
-        const freeSlotsByType = {
-
+    curHospitalSlots.forEach((slot) => {
+        if (!freeSlotsByType[slot.slotType]) {
+            freeSlotsByType[slot.slotType] = []
+        }
+        if (!bookedSlotsByType[slot.slotType]) {
+            bookedSlotsByType[slot.slotType] = []
         }
 
-        const bookedSlotsByType = {
+        const relevantBooking = bookings.find((booking) => booking.slot.equals(slot.id))
+        if (!relevantBooking) {
+            freeSlotsByType[slot.slotType].push(slot)
         }
-
-        curHospitalSlots.forEach((slot) => {
-            if (!freeSlotsByType[slot.slotType]) {
-                freeSlotsByType[slot.slotType] = []
-            }
-            if (!bookedSlotsByType[slot.slotType]) {
-                bookedSlotsByType[slot.slotType] = []
-            }
-
-            const relevantBooking = bookings.find((booking) => booking.slot.equals(slot.id))
-            if (!relevantBooking) {
-                freeSlotsByType[slot.slotType].push(slot)
-            }
-            else {
-                bookedSlotsByType[slot.slotType].push(slot)
-            }
-        })
-
-        resp.push({
-            ...hospital.toJSON(),
-            slots: curHospitalSlots.map((slot) => slot.toJSON()),
-            freeSlotsByType
-        })
-
+        else {
+            bookedSlotsByType[slot.slotType].push(slot)
+            curHospitalBookings.push(relevantBooking)
+        }
     })
-    console.log("hospitals data", resp)
+
+    return {
+        ...hospital.toJSON(),
+        bookedSlotsByType,
+        freeSlotsByType,
+        bookings: curHospitalBookings
+    }
+}
+
+const getAllHospitalsData = async () => {
+    const hospitals = await Hospital.find({})
+    const resp = await Promise.all(hospitals.map((hospital) => {
+        return getHospitalData(hospital.id)
+    }))
+    // console.log("hospitals data", resp)
     return resp
 }
+
 // router.get("/", async (req, res) => { 
 //     return await Hospital.find({});
 // })
 
 exports.getAllHospitalsData = getAllHospitalsData
+exports.getHospitalData = getHospitalData
 exports.saveMockHospitals = saveMockHospitals
