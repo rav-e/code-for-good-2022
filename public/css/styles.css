@@ -39,3 +39,14 @@ color: black;
   border-right: 15px;
 }
 
+.btn-spacing{
+  margin-right: 20px;
+}
+
+.btn-info{
+  border-radius: 10%;
+}
+
+.navbar-brand{
+  font-weight: bold;
+}
