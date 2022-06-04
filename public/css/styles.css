@@ -5,7 +5,16 @@
   }
   
   .bg-steel {
-    background-color: #5f788a;
+    background-color:black;
+  }
+
+
+  @media only screen and (max-width: 500px) {
+    .navright  {
+      position: relative;
+      left: 1000px;
+      
+    }
   }
   .footer-dark {
     padding:50px 0;
@@ -85,10 +94,7 @@
     opacity:0.75;
   }
   
-  .footer-dark .item.social > a:hover {
-    opacity:0.9;
-  }
-  
+
   .footer-dark .copyright {
     text-align:center;
     padding-top:24px;
