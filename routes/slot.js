@@ -1,12 +1,19 @@
 
-const monoogse = require("mongoose");
-const slotSchema = new mongoose.Schema({
-  medicalCondition: String,
-  type: String,
-  date: Date,
-  hospital: {type :"ObjectId", ref:"Hospital"}
-});
+const Hospital = require("../models/hospital")
+const Slot = require("../models/slot")
+const slotMockData = require("../slotMockData")
+const saveMockSlots = async () => {
+  const hospitals = await Hospital.find({})
+  await Slot.deleteMany({})
+  await Promise.all(slotMockData.map(async row => {
+    const slot = new Slot({
+      slotType: row.slotType,
+      timestamp: row.timestamp,
+      hospital: hospitals[row.hospital - 1].id
+    })
 
-const Slot = mongoose.model(slotSchema)
+    return await slot.save()
+  }))
+}
 
-module.exports = Slot
+exports.saveMockSlots = saveMockSlots

@@ -1,10 +1,11 @@
+const mongoose = require("mongoose");
 
 const patientSchema = new mongoose.Schema({
   patientID: String,
   dob: Date,
   blood_group: String,
-  weight: String,
-  height: String,
+  weight: Number,
+  height: Number,
   name: String
 });
 
