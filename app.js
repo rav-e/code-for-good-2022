@@ -10,6 +10,8 @@ const { saveMockSlots } = require("./routes/slot")
 const { login, logout } = require('./auth');
 const Hospital = require('./models/Hospital');
 const Slot = require('./models/Slot');
+const serviceTypes = require('./constants/serviceTypes');
+const dashboardRouter = require("./routes/dashboard")
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,9 +28,7 @@ app.get("/", async (req, res) => {
   });
 });
 
-app.get("/dashboard", function (req, res) {
-  res.render('dashboard');
-});
+app.use("/dashboard", dashboardRouter);
 
 
 app.get("/logout", logout)
