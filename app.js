@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
-
+const mongoCred = require("./cred")
 
 
 app.get("/slot-info", async (req, res) => {
@@ -76,7 +76,7 @@ app.use("/books", booksRouter)
 app.use("/patient", patientRouter)
 app.use("/booking", bookingRouter)
 
-mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.net/test?retryWrites=true&w=majority', async function (err) {
+mongoose.connect(mongoCred, async function (err) {
   await Hospital.init()
   await Slot.init()
   if (err) {
