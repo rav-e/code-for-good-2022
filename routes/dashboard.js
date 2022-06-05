@@ -1,5 +1,6 @@
 const express = require("express")
 const dashboardRouter = express.Router()
+const Slot = require("../models/Slot")
 const serviceTypes = require("../constants/serviceTypes")
 const { getAllHospitalsData, getHospitalData } = require("../routes/hospital")
 dashboardRouter.get("/", async function (req, res) {
@@ -13,6 +14,15 @@ dashboardRouter.get("/stats", async (req, res) => {
         serviceTypes: serviceTypes
     }
     return res.json(data)
+})
+
+dashboardRouter.post("/add-slot", async (req, res) => {
+    console.log("reqBody", req.body)
+    const slot = new Slot(req.body)
+
+    await slot.save()
+    console.log("slot saved", slot)
+    return res.json(slot)
 })
 
 dashboardRouter.get("/hospital-stats/:hospitalId?", async (req, res) => {

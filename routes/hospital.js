@@ -22,7 +22,7 @@ const sampleHospitals = [
 const saveMockHospitals = async () => {
     await Hospital.deleteMany({})
     await Promise.all(sampleHospitals.map(async (hospital) => {
-        console.log("hosp", hospital)
+        // console.log("hosp", hospital)
         const hospitalDoc = new Hospital(hospital)
         console.log("hospdoc", hospitalDoc)
         return await hospitalDoc.save()
@@ -31,15 +31,16 @@ const saveMockHospitals = async () => {
 
 
 const getHospitalData = async (hospitalId) => {
-    const slots = await Slot.find({})
+    const hospital = await Hospital.findById(hospitalId).select("-password")
     const bookings = await Booking.find({}).populate("patient").populate("slot")
-    const hospital = await Hospital.findOne({ id: hospitalId }).select("-password")
-    const curHospitalSlots = slots.filter((slot) => slot.hospital.equals(hospital.id))
+    const curHospitalSlots = await Slot.find({
+        hospital: hospitalId
+    })
     const curHospitalBookings = []
     const freeSlotsByType = {
 
     }
-    console.log("bookings debug", bookings)
+    // console.log("bookings debug", bookings)
     const bookedSlotsByType = {
     }
 
@@ -62,7 +63,9 @@ const getHospitalData = async (hospitalId) => {
     })
 
     return {
-        ...hospital.toJSON(),
+        title: hospital.title,
+        image: hospital.image,
+        _id: hospital._id,
         bookedSlotsByType,
         freeSlotsByType,
         bookings: curHospitalBookings
@@ -72,15 +75,11 @@ const getHospitalData = async (hospitalId) => {
 const getAllHospitalsData = async () => {
     const hospitals = await Hospital.find({})
     const resp = await Promise.all(hospitals.map((hospital) => {
-        return getHospitalData(hospital.id)
+        return getHospitalData(hospital._id)
     }))
-    // console.log("hospitals data", resp)
     return resp
-}
 
-// router.get("/", async (req, res) => { 
-//     return await Hospital.find({});
-// })
+}
 
 exports.getAllHospitalsData = getAllHospitalsData
 exports.getHospitalData = getHospitalData

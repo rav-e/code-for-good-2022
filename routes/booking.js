@@ -1,5 +1,5 @@
 const express = require("express");
-// const router = express.Router();
+const router = express.Router();
 const Booking = require("../models/Booking");
 const Slot = require("../models/Slot")
 const Patient = require("../models/Patient")
@@ -41,3 +41,20 @@ const saveMockBooking = async () => {
 }
 
 exports.saveMockBooking = saveMockBooking
+
+router.post("/", async (req, res) => {
+  const booking = new Booking(req.body)
+  await booking.save()
+  res.send(booking)
+})
+
+router.get("/:bookingId?", async (req, res) => {
+  const bookingId = req.params.bookingId
+  if (bookingId) {
+    return (await Booking.findById(bookingId).populate("patient").populate("slot")).toJSON()
+  }
+  else {
+    return res.status(404).send("Booking not found")
+  }
+})
+module.exports = router

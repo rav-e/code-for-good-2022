@@ -2,7 +2,8 @@ const mongoose = require("mongoose")
 
 const hospitalSchema = new mongoose.Schema({
   title: { type: String },
-  password: { type: String }
+  password: { type: String },
+  image: { type: String }
 });
 
-module.exports = mongoose.models.Hospital || mongoose.model("Hospital", hospitalSchema);
+module.exports = mongoose.model("Hospital", hospitalSchema);

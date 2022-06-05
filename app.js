@@ -14,6 +14,9 @@ const dashboardRouter = require("./routes/dashboard")
 const patientRouter = require("./routes/patients")
 const { saveMockBooking } = require("./routes/booking");
 const { saveMockPatient } = require("./routes/patients");
+const serviceTypes = require("./constants/serviceTypes")
+const bookingRouter = require("./routes/booking");
+const Booking = require('./models/Booking');
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -23,19 +26,28 @@ app.set('view engine', 'ejs');
 
 
 
+app.get("/slot-info", async (req, res) => {
+  return res.json({ hospitalsData: await getAllHospitalsData(), serviceTypes: serviceTypes })
+})
 app.get("/", async (req, res) => {
-  res.render('home', {
-    hospitals: await getAllHospitalsData()
-  });
+  res.render('home');
 });
 
 app.use("/dashboard", dashboardRouter);
 
 
 app.get("/logout", logout)
+app.get("/booking-success/:bookingId", async (req, res) => {
+  const booking = await Booking.findById(req.params.bookingId)
+
+  res.render("booking-success", {
+    booking
+  })
+})
 app.post("/login", login)
 app.use("/books", booksRouter)
 app.use("/patient", patientRouter)
+app.use("/booking", bookingRouter)
 
 mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.net/test?retryWrites=true&w=majority', async function (err) {
   await Hospital.init()

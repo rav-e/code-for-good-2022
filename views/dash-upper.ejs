@@ -1,40 +1,132 @@
 <%- include("header"); -%>
 <div class="container">
-  <h1 class="mt-3">Slot Allocation Status</h1>
+  <h1 id="hospital-creds" class="mt-3"></h1>
+  <div class="d-flex justify-content-between align-items-center">
+    <h2 class="mt-3">Slot Allocation Status</h2>
+    <button
+      class="btn btn-warning"
+      data-toggle="modal"
+      data-target="#exampleModal"
+      id="slot"
+    >
+      Add Slot
+    </button>
+  </div>
   <div class="container row justify-content-around mt-3" id="services"></div>
-  <div id="gantt" class=""></div>
+  <div class="modal" tabindex="-1" role="dialog" id="exampleModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Slot</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Date and Time</label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                id="timestamp"
+              />
+            </div>
+            <div class="form-group">
+              <label for="slotType">Session Type</label>
+              <select class="form-control" id="slotType">
+                <option value="General Consultation">
+                  General Consultation
+                </option>
+                <option value="MRI Scan">MRI Scan</option>
+                <option value="X-Ray">X-Ray</option>
+                <option value="Dental Checkup">Dental Checkup</option>
+                <option value="Ultrasound">Ultrasound</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-dismiss="modal"
+            id="save-button"
+          >
+            Save changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
   const getCardHTML = (cardData) => {
     return `
-        <div class="card col-2 mt-2" style="cursor:pointer;">
+        <div class="card col-2 mt-2">
             <div class="card-body text-center">
             <p class="card-text">
                 <img src="${cardData.image}" style="width: 100%" />
             </p>
             <small>
                 ${cardData.name}
+            <div>
+            <b>${
+              window.bookedSlotsByType[cardData.name].filter((slot) => {
+                const numStamp = new Date(slot.timestamp).getTime();
+                const nowStamp = new Date().getTime();
+                return (
+                  numStamp > nowStamp &&
+                  numStamp < nowStamp + 1000 * 60 * 60 * 24
+                );
+              }).length
+            } bookings today</b>
+            </div>
             </small>
             </div>
         </div>
+
         `;
   };
+
   window.addEventListener("DOMContentLoaded", async () => {
-    const { serviceTypes } = (await cfgAxios.get("/dashboard/stats")).data;
+    const { serviceTypes, bookedSlotsByType, title, _id } = (
+      await cfgAxios.get("/dashboard/hospital-stats")
+    ).data;
+
+    window.serviceTypes = serviceTypes;
+    window.bookedSlotsByType = bookedSlotsByType;
+
+    document.querySelector("#hospital-creds").innerHTML = title;
     const cards = serviceTypes.map((serviceType) => {
       return getCardHTML(serviceType);
     });
+
     document.querySelector("#services").innerHTML = cards.join("");
-    var tasks = [
-      {
-        id: "Task 1",
-        name: "Redesign website",
-        start: "2016-12-28",
-        end: "2016-12-31",
-        progress: 20,
-        dependencies: "Task 2, Task 3",
-      },
-    ];
-    var gantt = new window.Gantt("#gantt", tasks);
+
+    document
+      .querySelector("#save-button")
+      .addEventListener("click", async () => {
+        try {
+          const timestamp = document.querySelector("#timestamp").value;
+          const slotType = document.querySelector("#slotType").value;
+          const addedSlot = await cfgAxios.post("/dashboard/add-slot", {
+            timestamp,
+            slotType,
+            hospital: _id,
+          });
+          console.log(addedSlot);
+        } catch (err) {
+          console.log("couldnt add slot", err);
+        }
+      });
   });
 </script>

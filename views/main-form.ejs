@@ -1,10 +1,11 @@
 <div class="container">
-  <form id="form-accordions"></form>
+  <div id="form-accordions"></div>
 </div>
 <script>
   const getAndSetCoveredStatus = (disease, covered) => {
     if (disease && disease != "Pick Disease") {
-      window.medicalCondition = disease;
+      window.requestData.medicalCondition = disease;
+      console.log(window.requestData);
       return `
         <div class="alert alert-${covered ? "success" : "danger"}" role="alert">
             <b>${disease}</b> is <b>${
@@ -16,6 +17,7 @@
       return "";
     }
   };
+
   const getPatientTable = (patient) => {
     return `
           <table class="table table-striped">
@@ -45,37 +47,132 @@
     patientId: "",
     symptoms: "",
     medicalCondition: "",
-    slot: "",
+    service: "",
+    hospital: "",
   };
 
   window.addEventListener("DOMContentLoaded", async () => {
     const { aarogyasri, notIncluded } = (
       await cfgAxios.get("/patient/diseases-symptoms")
     ).data;
+
+    const { serviceTypes, hospitalsData } = (await cfgAxios.get("/slot-info"))
+      .data;
+    window.serviceTypes = serviceTypes;
+    window.hospitalsData = hospitalsData;
     window.aarogyasri = aarogyasri;
-    const combinedDiseases = Array.from(
+    window.combinedDiseases = Array.from(
       new Set([...aarogyasri, ...notIncluded])
     );
-    combinedDiseases.sort();
+    window.combinedDiseases.sort();
 
-    const fetchPatient = async () => {
+    fetchPatient = async () => {
       try {
         const patientId = document.querySelector("#patient-id")?.value || "";
         const patient = (await cfgAxios.get(`/patient/${patientId}`)).data;
         const table = getPatientTable(patient);
         const tableDiv = document.querySelector("#patient-table");
         tableDiv.innerHTML = table;
+        window.requestData.patientId = patient._id;
+        console.log(window.requestData);
       } catch (err) {
         console.log(err);
       }
     };
 
-    const checkDisease = () => {
+    window.setService = async (sName) => {
+      window.serviceTypes.forEach((sType) => {
+        document.getElementById(sType.name).classList.remove("btn-success");
+      });
+      console.log("check this", sName, window.serviceTypes);
+      if (window.serviceTypes.find((elem) => elem.name == sName)) {
+        window.requestData.service = sName;
+        document.getElementById(sName).classList.add("btn-success");
+        console.log(window.requestData);
+        window.renderSlots();
+      }
+    };
+    window.checkDisease = async () => {
       const disease = document.querySelector("#disease-name")?.value || "";
       document.querySelector("#cover-info").innerHTML = getAndSetCoveredStatus(
         disease,
         window.aarogyasri.includes(disease)
       );
+    };
+
+    window.symptomToggle = () => {
+      symptoms = document.querySelector("#symptoms")?.value || "";
+      window.requestData.symptoms = symptoms;
+      console.log("set symptoms to", window.requestData.symptoms);
+    };
+
+    window.diseaseToggle = () => {
+      const knownDisease = document.querySelector("#disease-yes").checked;
+      let ailmentSymptomsContent = "";
+      if (knownDisease) {
+        const diseaseOptions = window.combinedDiseases
+          .map((disease) => {
+            return `<option value=${disease}>${disease}</option>`;
+          })
+          .join("");
+
+        ailmentSymptomsContent = `
+                <label for="disease-name">Disease Name</label>
+                <select class='form-control' type="text" id='disease-name' placeholder='Disease name' required style="flex:1;" onchange='window.checkDisease()'>
+                        <option selected="true" disabled="disabled">Pick Disease</option>
+                        ${diseaseOptions}
+                </select>
+            `;
+      } else {
+        ailmentSymptomsContent = `
+             <label for="symptoms">Enter Symptoms / Description</label>
+             <input class="form-control" type="text" id="symptoms" placeholder="Description (Comma separated symptoms)" required style="flex:1;" onchange='window.symptomToggle()' />
+            `;
+      }
+      document.querySelector("#ailment-symptoms-content").innerHTML =
+        ailmentSymptomsContent;
+    };
+
+    window.renderSlots = () => {
+      window.hospitalsData.forEach((hospital) => {
+        document
+          .getElementById(hospital.title + "-button")
+          .classList.remove("btn-success");
+        const temp = hospital.freeSlotsByType[window.requestData.service];
+        document.getElementById(hospital.title + "-left").innerHTML =
+          temp?.length || 0;
+      });
+    };
+    window.setSlot = (hospName) => {
+      window.hospitalsData.forEach((hospital) => {
+        document
+          .getElementById(hospital.title + "-button")
+          .classList.remove("btn-success");
+      });
+      window.requestData.hospital = hospName;
+      document
+        .getElementById(hospName + "-button")
+        .classList.add("btn-success");
+      console.log(window.requestData);
+    };
+
+    window.finalize = async () => {
+      try {
+        const booking = (
+          await cfgAxios.post("/booking", {
+            medicalCondition: window.requestData.medicalCondition,
+            symptoms: window.requestData.symptoms,
+            patient: window.requestData.patientId,
+            slot: window.hospitalsData.find(
+              (hosp) => hosp.title === window.requestData.hospital
+            ).freeSlotsByType[window.requestData.service][0]._id,
+          })
+        ).data;
+
+        window.location.href = "/booking-success/" + booking._id;
+      } catch (err) {
+        console.log("failed to create booking", err);
+      }
     };
 
     const accordionSteps = [
@@ -87,7 +184,7 @@
                   <label for="patient-id">Patient ID</label>
                   <input class="form-control" type="text" id="patient-id" placeholder="Enter Patient ID" required style="flex:1;" onchange='(${fetchPatient.toString()})()'>
                   <div id="patient-table"></div>
-                  </div>
+              </div>
               `,
         proceedLogic: () => {},
       },
@@ -99,13 +196,13 @@
                     <label for="patient-id">Any Prediagnosed Ailment?</label>
                     <div class="d-flex align-items-center">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="disease-known" id="disease-yes" value="yes" checked>
+                            <input class="form-check-input" type="radio" name="disease-known" id="disease-yes" value="yes" checked onchange='window.diseaseToggle()'>
                             <label class="form-check-label" for="disease-no">
                                 Yes
                             </label>
                         </div>
                         <div class="form-check ml-5">
-                            <input class="form-check-input" type="radio" name="disease-known" id="disease-no" value="no">
+                            <input class="form-check-input" type="radio" name="disease-known" id="disease-no" value="no" onchange='window.diseaseToggle()'>
                             <label class="form-check-label" for="disease-no">
                                 No
                             </label>
@@ -113,17 +210,8 @@
                     </div>
                 </div>
                 <div id="ailment-symptoms-container">
-                    <div class="form-group">
-                        <label for="disease-name">Disease Name</label>
-                        <select class="form-control" type="text" id="disease-name" placeholder="Disease name" required style="flex:1;" onchange='(${checkDisease.toString()})()'>
-                            <option selected="true" disabled="disabled">Pick Disease</option>
-                            ${combinedDiseases
-                              .map(
-                                (disease) =>
-                                  `<option value="${disease}">${disease}</option>`
-                              )
-                              .join("")}
-                        </select>
+                    <div class="form-group" id="ailment-symptoms-content">
+
                     </div>
                     <div id="cover-info"></div>
                 </div>
@@ -132,26 +220,55 @@
       {
         title: "Service Selection",
         icon: "/images/main-form/service.png",
+        content: `
+            <div class="row justify-content-around">
+                ${serviceTypes
+                  .map((sType) => {
+                    return `
+                        <div class="d-flex " style="flex-direction:column;justify-content:center">
+                            <div>
+                            <img src='${sType.image}' style="width:150px;height:150px;"/>
+                            </div>
+                            <button type="button" id="${sType.name}" class="btn mt-3" onclick='window.setService("${sType.name}")'>
+                                ${sType.name}
+                            </button>
+                        </div>
+                    `;
+                  })
+                  .join()}
+            </div>
+        `,
       },
       {
         title: "Healthcare Centre Selection",
         icon: "/images/main-form/hospital.png",
+        content: `
+            <div class="row justify-content-around">
+                ${window.hospitalsData
+                  .map((hospital) => {
+                    return `
+                            <div class="card mt-4" style="">
+                                <img class="card-img-top" src="${hospital.image}" style="width:360px;height:265px;">
+                                <div class="card-body">
+                                    <h5 class="card-title">${hospital.title}</h5>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <p><span id="${hospital.title}-left">0</span> seats left</p>
+                                        <button type="button" id="${hospital.title}-button" class="btn" onclick='window.setSlot("${hospital.title}")'>Select</button>
+                                    </div>
+                                </div>
+                            </div>
+                    `;
+                  })
+                  .join(" ")}
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                    <button class="btn type="button" btn-warning btn-large" onclick="window.finalize()">
+                        Book Slot
+                    </button>
+                </div>
+        `,
       },
     ];
-
-    /*
-
-      dob
-      2022-06-04T15:37:55.619+00:00
-      blood_group
-      "B+"
-      weight
-      65
-      height
-      165
-      name
-      "Akash"
-      */
 
     const getAccordion = (data) => {
       return `
@@ -186,14 +303,6 @@
               >
               <div class="card-body bg-sand">
                   ${data.content || ""}
-                  <div class="d-flex justify-content-end">
-                      <div class="text-danger">
-                          ${data.error ? data.error + "*" : ""}
-                      </div>
-                      <button class="btn btn-warning btn-large">
-                          Proceed
-                      </button>
-                  </div>
               </div>
               </div>
           </div>`;
@@ -208,5 +317,6 @@
     document
       .querySelector("#form-accordions")
       .insertAdjacentHTML("afterbegin", accordionsHTML);
+    window.diseaseToggle();
   });
 </script>
