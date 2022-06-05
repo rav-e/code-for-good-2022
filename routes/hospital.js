@@ -6,16 +6,20 @@ const Slot = require("../models/Slot")
 const sampleHospitals = [
     {
         title: "Laxmi Trust Hospital",
-        password: "Pwd1234"
+        password: "Pwd1234",
+        image: "/images/hospitals/laxmi.jpg",
     }, {
         title: "Sri Ramakrishna Hospital",
         password: "Pwd1234",
+        image: "/images/ramakrishanan.jpg"
     }, {
         title: "Dentronix Medisystems",
-        password: "Pwd1234"
+        password: "Pwd1234",
+        image: "/images/hospitals/l-v-pdentronix.jpg"
     }, {
         title: "Manav Kalyan Seva Samiti",
-        password: "Pwd1234"
+        password: "Pwd1234",
+        image: "/images/hospitals/manav.jpg"
     }
 ]
 

@@ -26,7 +26,7 @@ dashboardRouter.post("/add-slot", async (req, res) => {
 })
 
 dashboardRouter.get("/hospital-stats/:hospitalId?", async (req, res) => {
-    let hospitalId = req.params.hospitalId || "629b5e2075f87b9db6df0014"
+    let hospitalId = req.params.hospitalId || "629c10d2c20fce86421651b0"
     const data = await getHospitalData(hospitalId)
     return res.json({ ...data, serviceTypes })
 })

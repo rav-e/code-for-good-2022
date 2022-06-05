@@ -25,6 +25,7 @@ router.get("/diseases-symptoms", async (req, res) => {
     })
 })
 router.get("/:patientId", async (req, res) => {
+    console.log("patient id", req.params)
     const patient = await Patient.findOne({ parentId: req.params.patientId });
     console.log("patient", patient);
     if (patient) {

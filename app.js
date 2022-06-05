@@ -12,7 +12,6 @@ const Hospital = require('./models/Hospital');
 const Slot = require('./models/Slot');
 const dashboardRouter = require("./routes/dashboard")
 const patientRouter = require("./routes/patients")
-const { saveMockBooking } = require("./routes/booking");
 const { saveMockPatient } = require("./routes/patients");
 const serviceTypes = require("./constants/serviceTypes")
 const bookingRouter = require("./routes/booking");
@@ -32,6 +31,34 @@ app.get("/slot-info", async (req, res) => {
 app.get("/", async (req, res) => {
   res.render('home');
 });
+
+app.get("/team", (req, res) => {
+  const teamPeople = [{
+    name: "Mansi Patil",
+    image: "/images/team/mansi.jpg"
+  }, {
+    name: "Shaik Reehana",
+    image: "/images/team/reehana.jpeg"
+  }, {
+    name: "Aashritha Nelavelli",
+    image: "/images/team/aashrita.JPG"
+  }, {
+    name: "CH. Monica Chowdary",
+    image: "/images/team/monica.jpg"
+  }, {
+    name: "Raviranjan Prasad",
+    image: "/images/team/ravi.jpg"
+  }, {
+    name: "Vaibhav Chopra",
+    image: "/images/team/vaibhav.jpg",
+  }, {
+    name: "Akash P",
+    image: "/images/team/akash.jpg",
+  },]
+
+  return res.json(teamPeople);
+
+})
 
 app.use("/dashboard", dashboardRouter);
 
@@ -59,8 +86,8 @@ mongoose.connect('mongodb+srv://vaibhav:xEin6PCHKLGcodxD@cluster0.jzmkj.mongodb.
     app.listen(3000, async function (req, res) {
       // await saveMockHospitals()
       // await saveMockSlots()
-      // await saveMockPatient()
       // await saveMockBooking()
+      // await saveMockPatient()
       console.log("Server running");
     });
   }
