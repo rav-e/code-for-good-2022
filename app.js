@@ -65,10 +65,10 @@ app.use("/dashboard", dashboardRouter);
 
 app.get("/logout", logout)
 app.get("/booking-success/:bookingId", async (req, res) => {
-  const booking = await Booking.findById(req.params.bookingId)
-
+  const booking = await (Booking.findById(req.params.bookingId).populate("slot"))
+  console.log("this booking", booking)
   res.render("booking-success", {
-    booking
+    slot: booking.slot
   })
 })
 app.post("/login", login)

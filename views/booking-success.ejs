@@ -1,14 +1,15 @@
 <%- include("header"); -%>
 <div class="bg-sand">
   <div class="row" style="min-height: 100vh">
-    <div class="col-6" style="display: grid;place-items:center;">
+    <div class="col-6 text-center" style="display: grid;place-items:center;">
       <div>  
         <h1>Slot Booked Successfully!</h1>
-        <%= booking.timestamp %>
-        <img src="/images/bigtick.png" />
+        See you on <%= new Date(slot.timestamp).toLocaleDateString()+" "+new Date(slot.timestamp).toLocaleTimeString() %>!
+        <lottie-player src="https://assets2.lottiefiles.com/private_files/lf30_DkPC3g.json"  background="transparent"  speed="1"  style="width: 300px; height: 300px; margin-left:auto;margin-right: auto;"  loop autoplay></lottie-player>
+        
       </div>
-      </div>
-      <div class="bg-cream col-6" style="display: grid; place-items: center">
+    </div>
+    <div class="bg-cream col-6" style="display: grid; place-items: center">
         <img src="/images/thanks.png" style="width: 75%";/>
       </div>
     </div>
