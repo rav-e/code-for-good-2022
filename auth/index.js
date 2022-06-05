@@ -22,7 +22,7 @@ const login = (req, res) => {
 
     if (user) {
         // Generate an access token
-        const accessToken = jwt.sign({ username: user.username, role: user.role }, accessTokenSecret);
+        const accessToken = jwt.sign({ username: user.username, role: user.role }, accessTokenSecret, { expiresIn: '24h' });
         res.cookie("accessToken", accessToken).json({
             accessToken
         });
